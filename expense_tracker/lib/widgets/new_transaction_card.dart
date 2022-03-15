@@ -20,7 +20,7 @@ class _NewTransactionCardState extends State<NewTransactionCard> {
     showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2019),
+      firstDate: DateTime.now().subtract(Duration(days: 6)),
       lastDate: DateTime.now(),
     ).then((pickedDate) {
       if (pickedDate == null) {
@@ -84,7 +84,7 @@ class _NewTransactionCardState extends State<NewTransactionCard> {
                       : DateFormat.yMMMd().format(_selectedDate as DateTime),
                 ),
                 onTap: () {
-                  FocusScope.of(context).requestFocus(new FocusNode());
+                  FocusScope.of(context).requestFocus(FocusNode());
                   _presentDatePicker();
                 },
                 validator: (date) =>

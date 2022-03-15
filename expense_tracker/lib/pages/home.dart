@@ -1,8 +1,8 @@
-import 'package:expense_tracker/widgets/transaction_list.dart';
 import 'package:flutter/material.dart';
 
 import 'package:expense_tracker/widgets/new_transaction_card.dart';
 import 'package:expense_tracker/widgets/chart.dart';
+import 'package:expense_tracker/widgets/transaction_list.dart';
 import 'package:expense_tracker/model/transaction.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,6 +26,54 @@ class _HomePageState extends State<HomePage> {
       date: DateTime.now(),
       amount: 69.9,
     ),
+    Transaction(
+      id: 't1',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't2',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't1',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't2',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't1',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't2',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't1',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
+    Transaction(
+      id: 't2',
+      title: 'New shoes',
+      date: DateTime.now(),
+      amount: 69.9,
+    ),
   ];
 
   List<Transaction> get _recentTransactions {
@@ -37,6 +85,8 @@ class _HomePageState extends State<HomePage> {
       );
     }).toList();
   }
+
+  bool _showChart = true;
 
   void showModalAddTransaction(BuildContext ctx) {
     showModalBottomSheet(
@@ -73,25 +123,57 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+    final appBar = AppBar(
+      title: Text('Flutter App'),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            showModalAddTransaction(context);
+          },
+        ),
+      ],
+    );
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Flutter App'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              showModalAddTransaction(context);
-            },
-          ),
-        ],
-      ),
+      appBar: appBar,
       body: ListView(
         // mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          Chart(recentTransactions: _recentTransactions),
-          TransactionList(
-            transactions: transactions,
-            deleteTransaction: deleteTransaction,
+          if (isPortrait)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Show Chart'),
+                Switch(
+                  value: _showChart,
+                  onChanged: (val) {
+                    setState(() {
+                      _showChart = val;
+                    });
+                  },
+                ),
+              ],
+            ),
+          if (isPortrait && _showChart)
+            SizedBox(
+              height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height -
+                      MediaQuery.of(context).padding.top) *
+                  0.3,
+              child: Chart(recentTransactions: _recentTransactions),
+            ),
+          SizedBox(
+            height: (MediaQuery.of(context).size.height -
+                    appBar.preferredSize.height -
+                    MediaQuery.of(context).padding.top) *
+                0.7,
+            child: TransactionList(
+              transactions: transactions,
+              deleteTransaction: deleteTransaction,
+            ),
           ),
         ],
       ),
