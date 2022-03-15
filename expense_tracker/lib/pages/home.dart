@@ -1,7 +1,8 @@
-import 'package:expense_tracker/widgets/transaction_card.dart';
+import 'package:expense_tracker/widgets/transaction_list.dart';
 import 'package:flutter/material.dart';
 
 import 'package:expense_tracker/widgets/new_transaction_card.dart';
+import 'package:expense_tracker/widgets/chart.dart';
 import 'package:expense_tracker/model/transaction.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,51 +28,80 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  // late String titleInput;
-  // late String amountInput;
-  final titleController = TextEditingController();
-  final amountController = TextEditingController();
+  List<Transaction> get _recentTransactions {
+    return transactions.where((tx) {
+      return tx.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
+    }).toList();
+  }
+
+  void showModalAddTransaction(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx,
+      builder: (ctx) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          child: NewTransactionCard(
+            addTx: addNewTransaction,
+          ),
+          onTap: () {},
+        );
+      },
+    );
+  }
+
+  void addNewTransaction(String title, double amount, DateTime date) {
+    final newTx = Transaction(
+      id: DateTime.now().toString(),
+      title: title,
+      amount: amount,
+      date: date,
+    );
+    setState(() {
+      transactions.add(newTx);
+    });
+  }
+
+  void deleteTransaction(String id) {
+    setState(() {
+      transactions.removeWhere((tx) => tx.id == id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Flutter App'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              showModalAddTransaction(context);
+            },
+          ),
+        ],
       ),
       body: ListView(
         // mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          Card(
-            child: Container(
-              child: Text('Chart!'),
-              margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-              width: double.infinity,
-            ),
-            elevation: 5,
-            margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-          ),
-          NewTransactionCard(addTx: addNewTransaction),
-          SingleChildScrollView(
-            child: Column(
-              children: transactions
-                  .map((elem) => TransactionCard(transaction: elem))
-                  .toList(),
-            ),
+          Chart(recentTransactions: _recentTransactions),
+          TransactionList(
+            transactions: transactions,
+            deleteTransaction: deleteTransaction,
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          showModalAddTransaction(context);
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
-  }
-
-  void addNewTransaction(String title, double amount) {
-    final newTx = Transaction(
-      id: DateTime.now().toString(),
-      title: title,
-      amount: amount,
-      date: DateTime.now(),
-    );
-    setState(() {
-      transactions.add(newTx);
-    });
   }
 }

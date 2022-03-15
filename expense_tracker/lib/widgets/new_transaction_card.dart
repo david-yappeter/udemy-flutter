@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class NewTransactionCard extends StatelessWidget {
+class NewTransactionCard extends StatefulWidget {
   final Function addTx;
-  final titleController = TextEditingController();
-  final amountController = TextEditingController();
 
   NewTransactionCard({Key? key, required this.addTx}) : super(key: key);
+
+  @override
+  State<NewTransactionCard> createState() => _NewTransactionCardState();
+}
+
+class _NewTransactionCardState extends State<NewTransactionCard> {
+  final formKey = GlobalKey<FormState>();
+  final titleController = TextEditingController();
+  final amountController = TextEditingController();
+  DateTime? _selectedDate;
+
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,32 +39,78 @@ class NewTransactionCard extends StatelessWidget {
       elevation: 5,
       child: Container(
         padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Title',
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                ),
+                controller: titleController,
+                validator: (title) =>
+                    title != null && title.isEmpty ? 'Title is required' : null,
               ),
-              controller: titleController,
-            ),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Amount',
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                ),
+                controller: amountController,
+                validator: (amount) {
+                  if (amount == null || amount.isEmpty) {
+                    return 'Amount is required';
+                  }
+
+                  try {
+                    if (double.parse(amount) <= 0) {
+                      return 'Amount must be greater than 0';
+                    }
+                  } catch (e) {
+                    return "Invalid Amount";
+                  }
+
+                  return null;
+                },
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
               ),
-              controller: amountController,
-            ),
-            TextButton(
-              onPressed: () {
-                addTx(
-                    titleController.text, double.parse(amountController.text));
-              },
-              child: Text(
-                'Add Transaction',
-                style: TextStyle(color: Colors.purple),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Date',
+                ),
+                controller: TextEditingController(
+                  text: _selectedDate == null
+                      ? ''
+                      : DateFormat.yMMMd().format(_selectedDate as DateTime),
+                ),
+                onTap: () {
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  _presentDatePicker();
+                },
+                validator: (date) =>
+                    date != null && date.isEmpty ? 'Date is required' : null,
               ),
-            ),
-          ],
+              TextButton(
+                onPressed: () {
+                  final isValid = formKey.currentState?.validate();
+
+                  if (isValid != null && isValid) {
+                    widget.addTx(
+                      titleController.text,
+                      double.parse(amountController.text),
+                      _selectedDate as DateTime,
+                    );
+
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Text(
+                  'Add Transaction',
+                  style: TextStyle(color: Colors.purple),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
