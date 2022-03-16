@@ -15,12 +15,16 @@ class TransactionList extends StatelessWidget {
     final themeContext = Theme.of(context);
 
     return transactions.isNotEmpty
-        ? ListView.builder(
-            itemBuilder: (BuildContext ctx, int idx) => TransactionCard(
-              transaction: transactions[idx],
-              deleteTransaction: deleteTransaction,
-            ),
-            itemCount: transactions.length,
+        ? ListView(
+            children: transactions
+                .map(
+                  (transaction) => TransactionCard(
+                    key: ValueKey(transaction.id),
+                    transaction: transaction,
+                    deleteTransaction: deleteTransaction,
+                  ),
+                )
+                .toList(),
           )
         : LayoutBuilder(
             builder: (BuildContext ctx, BoxConstraints constraint) => Column(
