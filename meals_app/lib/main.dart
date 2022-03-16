@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:meals_app/pages/categories.dart';
 import 'package:meals_app/pages/category_meal.dart';
+import 'package:meals_app/pages/meal_detail.dart';
 import 'package:meals_app/themes/theme.dart';
 
 void main() {
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       routes: {
         CategoryMealPage.routeName: (BuildContext ctx) =>
             const CategoryMealPage(),
+        MealDetail.routeName: (BuildContext ctx) => const MealDetail(),
       },
     );
   }
