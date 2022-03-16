@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> {
           onTap: () {},
         );
       },
+      isScrollControlled: true,
     );
   }
 
@@ -123,8 +124,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
+    final mediaContext = MediaQuery.of(context);
+
+    final isPortrait = mediaContext.orientation == Orientation.portrait;
     final appBar = AppBar(
       title: Text('Flutter App'),
       actions: <Widget>[
@@ -159,17 +161,17 @@ class _HomePageState extends State<HomePage> {
             ),
           if (isPortrait && _showChart)
             SizedBox(
-              height: (MediaQuery.of(context).size.height -
+              height: (mediaContext.size.height -
                       appBar.preferredSize.height -
-                      MediaQuery.of(context).padding.top) *
+                      mediaContext.padding.top) *
                   0.3,
               child: Chart(recentTransactions: _recentTransactions),
             ),
           SizedBox(
-            height: (MediaQuery.of(context).size.height -
+            height: (mediaContext.size.height -
                     appBar.preferredSize.height -
-                    MediaQuery.of(context).padding.top) *
-                0.7,
+                    mediaContext.padding.top) *
+                (isPortrait && _showChart ? 0.7 : 1),
             child: TransactionList(
               transactions: transactions,
               deleteTransaction: deleteTransaction,

@@ -19,6 +19,9 @@ class TransactionCard extends StatefulWidget {
 class _TransactionCardState extends State<TransactionCard> {
   @override
   Widget build(BuildContext context) {
+    final mediaContext = MediaQuery.of(context);
+    final themeContext = Theme.of(context);
+
     return Card(
       elevation: 5,
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
@@ -45,12 +48,29 @@ class _TransactionCardState extends State<TransactionCard> {
             color: Colors.grey,
           ),
         ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete),
-          onPressed: () {
-            widget.deleteTransaction(widget.transaction.id);
-          },
-        ),
+        trailing: mediaContext.size.width > 460
+            ? TextButton.icon(
+                onPressed: () {
+                  widget.deleteTransaction(widget.transaction.id);
+                },
+                icon: Icon(
+                  Icons.delete,
+                  color: themeContext.errorColor,
+                ),
+                label: Text(
+                  "Delete",
+                  style: TextStyle(
+                    color: themeContext.errorColor,
+                  ),
+                ),
+              )
+            : IconButton(
+                color: themeContext.errorColor,
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  widget.deleteTransaction(widget.transaction.id);
+                },
+              ),
       ),
     );
     // Card(
