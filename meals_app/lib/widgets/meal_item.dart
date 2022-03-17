@@ -10,6 +10,7 @@ class MealItem extends StatelessWidget {
   final int duration;
   final Complexity complexity;
   final Affordability affordability;
+  // final Function removeItem;
 
   const MealItem({
     Key? key,
@@ -19,6 +20,7 @@ class MealItem extends StatelessWidget {
     required this.duration,
     required this.complexity,
     required this.affordability,
+    // required this.removeItem,
   }) : super(key: key);
 
   String get complexityText {
@@ -55,6 +57,11 @@ class MealItem extends StatelessWidget {
       'duration': duration,
       'complexity': complexity,
       'affordability': affordability,
+      // })
+      // .then((result) {
+      // if (result != null) {
+      //   removeItem(result);
+      // }
     });
   }
 
@@ -96,7 +103,10 @@ class MealItem extends StatelessWidget {
                     width: 300,
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.caption,
+                      style: Theme.of(context)
+                          .textTheme
+                          .caption!
+                          .copyWith(color: Colors.white),
                       softWrap: true,
                       overflow: TextOverflow.fade,
                     ),

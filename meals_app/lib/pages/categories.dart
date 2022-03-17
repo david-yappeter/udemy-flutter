@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:meals_app/resources/dummy_data.dart';
 import 'package:meals_app/widgets/category_item.dart';
+import 'package:meals_app/widgets/drawer.dart';
 
 class CategoriesPage extends StatelessWidget {
   static const routeName = "/";
@@ -12,8 +13,9 @@ class CategoriesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("DeliMeal"),
+        title: const Text('Categories'),
       ),
+      drawer: const MainDrawer(),
       body: GridView(
         padding: const EdgeInsets.all(20),
         children: dummyCategories
