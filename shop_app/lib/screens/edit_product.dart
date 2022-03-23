@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:shop_app/providers/product.dart';
+import 'package:shop_app/providers/products.dart';
 
 class EditProductsScreen extends StatefulWidget {
   static const routeName = '/edit-product';
@@ -23,6 +25,33 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
     description: '',
     imageUrl: '',
   );
+  var initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+  };
+  bool isInit = true;
+
+  @override
+  void didChangeDependencies() {
+    if (isInit) {
+      final productId = ModalRoute.of(context)?.settings.arguments as String?;
+      if (productId == null) {
+        return;
+      }
+      _editedProduct =
+          Provider.of<Products>(context, listen: false).findById(productId);
+      initValues = {
+        'title': _editedProduct.title,
+        'description': _editedProduct.description,
+        'price': _editedProduct.price.toString(),
+      };
+      _imageUrlController.text = _editedProduct.imageUrl;
+      isInit = false;
+    }
+
+    super.didChangeDependencies();
+  }
 
   @override
   void dispose() {
@@ -33,13 +62,19 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
   }
 
   void saveForm() {
-    if (formKey.currentState != null && formKey.currentState!.validate()) {
+    if (formKey.currentState != null && !formKey.currentState!.validate()) {
       return;
     }
     if (formKey.currentState != null) {
       formKey.currentState?.save();
     }
-    // if (formKey.currentState != null && formKey.currentState!.validate())
+    if (_editedProduct.id.isEmpty) {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -61,6 +96,7 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: initValues['title'],
                 decoration: const InputDecoration(
                   labelText: 'Title',
                 ),
@@ -76,15 +112,17 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 },
                 onSaved: (String? value) {
                   _editedProduct = Product(
-                    id: '',
+                    id: _editedProduct.id,
                     title: value as String,
                     price: _editedProduct.price,
                     description: _editedProduct.description,
                     imageUrl: _editedProduct.imageUrl,
+                    isFavorite: _editedProduct.isFavorite,
                   );
                 },
               ),
               TextFormField(
+                initialValue: initValues['price'],
                 decoration: const InputDecoration(
                   labelText: 'Price',
                 ),
@@ -98,19 +136,30 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                   if (value != null && value.isEmpty) {
                     return 'Please enter a value';
                   }
+
+                  if (double.tryParse(value as String) == null) {
+                    return 'Please enter a valid number';
+                  }
+
+                  if (double.parse(value) <= 0) {
+                    return 'Please enter a number greater than zero';
+                  }
+
                   return null;
                 },
                 onSaved: (String? value) {
                   _editedProduct = Product(
-                    id: '',
+                    id: _editedProduct.id,
                     title: _editedProduct.title,
                     price: double.parse(value as String),
                     description: _editedProduct.description,
                     imageUrl: _editedProduct.imageUrl,
+                    isFavorite: _editedProduct.isFavorite,
                   );
                 },
               ),
               TextFormField(
+                initialValue: initValues['description'],
                 decoration: const InputDecoration(
                   labelText: 'Description',
                 ),
@@ -119,17 +168,23 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                 focusNode: _descriptionFocusNode,
                 onSaved: (String? value) {
                   _editedProduct = Product(
-                    id: '',
+                    id: _editedProduct.id,
                     title: _editedProduct.title,
                     price: _editedProduct.price,
                     description: value as String,
                     imageUrl: _editedProduct.imageUrl,
+                    isFavorite: _editedProduct.isFavorite,
                   );
                 },
                 validator: (String? value) {
                   if (value != null && value.isEmpty) {
                     return 'Please enter a value';
                   }
+
+                  if (value != null && value.length < 10) {
+                    return 'Please enter at least 10 characters';
+                  }
+
                   return null;
                 },
               ),
@@ -160,11 +215,12 @@ class _EditProductsScreenState extends State<EditProductsScreen> {
                       },
                       onSaved: (String? value) {
                         _editedProduct = Product(
-                          id: '',
+                          id: _editedProduct.id,
                           title: _editedProduct.title,
                           price: _editedProduct.price,
                           description: _editedProduct.description,
                           imageUrl: value as String,
+                          isFavorite: _editedProduct.isFavorite,
                         );
                       },
                       validator: (String? url) {
