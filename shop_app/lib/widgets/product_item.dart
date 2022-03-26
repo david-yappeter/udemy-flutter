@@ -44,7 +44,18 @@ class ProductItem extends StatelessWidget {
               icon: Icon(
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               onPressed: () {
-                product.toggleFavoriteStatus();
+                product.toggleFavoriteStatus().catchError((error) {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Something Wrong'),
+                      action: SnackBarAction(
+                        label: 'Close',
+                        onPressed: () {},
+                      ),
+                    ),
+                  );
+                });
               },
               color: Theme.of(context).colorScheme.secondary,
             ),
