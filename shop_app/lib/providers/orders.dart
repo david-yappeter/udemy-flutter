@@ -29,38 +29,55 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  Future<void> fetchAndSetOrders() async {
+  Future<void> fetchAndSetOrders(BuildContext ctx) async {
     final url = Uri.parse(
         'https://solid-daylight-332812-default-rtdb.firebaseio.com/orders.json');
     final response = await http.get(url);
-    var responseBody = json.decode(response.body);
-    if (responseBody == null) {
-      return;
-    }
-    responseBody = responseBody as Map<String, dynamic>;
+    try {
+      if (response.statusCode >= 400) {
+        throw const HttpException(message: 'Could not fetch orders');
+      } else {
+        var responseBody = json.decode(response.body);
+        if (responseBody == null) {
+          return;
+        }
+        responseBody = responseBody as Map<String, dynamic>;
 
-    final List<OrderItem> loadedOrders = [];
-    responseBody.forEach((orderId, orderData) {
-      loadedOrders.add(
-        OrderItem(
-          id: orderId,
-          dateTime: DateTime.parse(orderData['dateTime']),
-          products: (orderData['products'] as List<dynamic>)
-              .map(
-                (item) => CartItem(
-                  id: item['id'],
-                  title: item['title'],
-                  quantity: item['quantity'],
-                  price: item['price'],
-                ),
-              )
-              .toList(),
+        final List<OrderItem> loadedOrders = [];
+        responseBody.forEach((orderId, orderData) {
+          loadedOrders.add(
+            OrderItem(
+              id: orderId,
+              dateTime: DateTime.parse(orderData['dateTime']),
+              products: (orderData['products'] as List<dynamic>)
+                  .map(
+                    (item) => CartItem(
+                      id: item['id'],
+                      title: item['title'],
+                      quantity: item['quantity'],
+                      price: item['price'],
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        });
+
+        _orders = loadedOrders;
+        notifyListeners();
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: const Text('Failed to fetch orders'),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {},
+          ),
         ),
       );
-    });
-
-    _orders = loadedOrders;
-    notifyListeners();
+    }
   }
 
   Future<void> addOrder(List<CartItem> cartProducts) async {

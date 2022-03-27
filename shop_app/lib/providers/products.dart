@@ -50,28 +50,41 @@ class Products with ChangeNotifier {
     return _items.where((Product product) => product.isFavorite).toList();
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts(BuildContext ctx) async {
     final url = Uri.parse(
         'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json');
 
     try {
       final response = await http.get(url);
-      final responseBody = json.decode(response.body) as Map<String, dynamic>;
-      final List<Product> loadedProducts = [];
-      responseBody.forEach((prodId, prodData) {
-        loadedProducts.add(Product(
-          id: prodId,
-          title: prodData['title'],
-          description: prodData['description'],
-          price: prodData['price'],
-          isFavorite: prodData['isFavorite'],
-          imageUrl: prodData['imageUrl'],
-        ));
-      });
-      _items = loadedProducts;
-      notifyListeners();
+      if (response.statusCode >= 400) {
+        throw const HttpException(message: 'Could not fetch products');
+      } else {
+        final responseBody = json.decode(response.body) as Map<String, dynamic>;
+        final List<Product> loadedProducts = [];
+        responseBody.forEach((prodId, prodData) {
+          loadedProducts.add(Product(
+            id: prodId,
+            title: prodData['title'],
+            description: prodData['description'],
+            price: prodData['price'],
+            isFavorite: prodData['isFavorite'],
+            imageUrl: prodData['imageUrl'],
+          ));
+        });
+        _items = loadedProducts;
+        notifyListeners();
+      }
     } catch (error) {
-      throw (error);
+      ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: const Text('Failed to fetch products'),
+          action: SnackBarAction(
+            label: 'Close',
+            onPressed: () {},
+          ),
+        ),
+      );
     }
   }
 

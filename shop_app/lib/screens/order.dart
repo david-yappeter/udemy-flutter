@@ -12,14 +12,13 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final orderData = Provider.of<Orders>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Orders'),
       ),
       body: FutureBuilder(
-        future: Provider.of<Orders>(context, listen: false).fetchAndSetOrders(),
+        future: Provider.of<Orders>(context, listen: false)
+            .fetchAndSetOrders(context),
         builder: (BuildContext ctx, AsyncSnapshot<void> dataSnapshot) {
           if (dataSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(
