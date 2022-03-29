@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/providers/auth.dart';
+import 'package:shop_app/screens/auth.dart';
 import 'package:shop_app/screens/cart.dart';
 import 'package:shop_app/screens/edit_product.dart';
 import 'package:shop_app/screens/order.dart';
@@ -32,6 +34,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (BuildContext ctx) => Orders(),
         ),
+        ChangeNotifierProvider(
+          create: (BuildContext ctx) => Auth(),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -40,7 +45,8 @@ class MyApp extends StatelessWidget {
             colorScheme: const ColorScheme.light().copyWith(
               secondary: Colors.deepOrange,
             )),
-        home: const ProductOverviewScreen(),
+        home: const AuthScreen(),
+        // home: const ProductOverviewScreen(),
         routes: {
           ProductDetailScreen.routeName: (BuildContext ctx) =>
               const ProductDetailScreen(),

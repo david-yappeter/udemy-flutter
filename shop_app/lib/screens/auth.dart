@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:shop_app/providers/auth.dart';
 
 enum AuthMode { Signup, Login }
 
@@ -61,7 +64,10 @@ class AuthScreen extends StatelessWidget {
                       child: Text(
                         'MyShop',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .headline6
+                              ?.color,
                           fontSize: 50,
                           fontFamily: 'Anton',
                           fontWeight: FontWeight.normal,
@@ -93,7 +99,7 @@ class AuthCard extends StatefulWidget {
 }
 
 class _AuthCardState extends State<AuthCard> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   final Map<String, String> _authData = {
     'email': '',
@@ -102,7 +108,7 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
       // Invalid!
       return;
@@ -113,8 +119,16 @@ class _AuthCardState extends State<AuthCard> {
     });
     if (_authMode == AuthMode.Login) {
       // Log user in
+      await Provider.of<Auth>(context, listen: false).login(
+        _authData['email'] as String,
+        _authData['password'] as String,
+      );
     } else {
       // Sign user up
+      await Provider.of<Auth>(context, listen: false).signup(
+        _authData['email'] as String,
+        _authData['password'] as String,
+      );
     }
     setState(() {
       _isLoading = false;
@@ -174,6 +188,7 @@ class _AuthCardState extends State<AuthCard> {
                     if (value != null && (value.isEmpty || value.length < 5)) {
                       return 'Password is too short!';
                     }
+                    return null;
                   },
                   onSaved: (value) {
                     _authData['password'] = value as String;
@@ -190,6 +205,7 @@ class _AuthCardState extends State<AuthCard> {
                             if (value != _passwordController.text) {
                               return 'Passwords do not match!';
                             }
+                            return null;
                           }
                         : null,
                   ),
@@ -218,7 +234,7 @@ class _AuthCardState extends State<AuthCard> {
                   child: Text(
                       '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
                   onPressed: _switchAuthMode,
-                  style: ElevatedButton.styleFrom(
+                  style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30.0, vertical: 4),
                     textStyle: TextStyle(
@@ -226,7 +242,6 @@ class _AuthCardState extends State<AuthCard> {
                     ),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
             ),
