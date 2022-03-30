@@ -24,14 +24,19 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
+  final String authToken;
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
+  Orders(this.authToken, List<OrderItem> orders) {
+    _orders = orders;
+  }
+
   Future<void> fetchAndSetOrders(BuildContext ctx) async {
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/orders.json');
+        'https://solid-daylight-332812-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
     final response = await http.get(url);
     try {
       if (response.statusCode >= 400) {
@@ -82,7 +87,7 @@ class Orders with ChangeNotifier {
 
   Future<void> addOrder(List<CartItem> cartProducts) async {
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/orders.json');
+        'https://solid-daylight-332812-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
     _orders.insert(
       0,
       OrderItem(

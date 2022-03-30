@@ -99,7 +99,8 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json');
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
+    );
 
     return http
         .post(
@@ -128,7 +129,8 @@ class Products with ChangeNotifier {
 
   Future<void> updateProduct(String id, Product newProduct) async {
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/products/$id.json');
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken',
+    );
     await http.patch(
       url,
       body: json.encode(
@@ -148,7 +150,8 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/$id');
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/$id.json?auth=$authToken',
+    );
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
