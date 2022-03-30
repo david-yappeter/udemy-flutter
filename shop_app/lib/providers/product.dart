@@ -21,13 +21,13 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  Future<void> toggleFavoriteStatus(String token) async {
+  Future<void> toggleFavoriteStatus(String token, String userId) async {
     final initialFavorite = isFavorite;
     isFavorite = !initialFavorite;
     notifyListeners();
 
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/products/$id.json?auth=$token');
+        'https://solid-daylight-332812-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$token');
     try {
       final response = await http.patch(
         url,

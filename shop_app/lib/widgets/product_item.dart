@@ -47,7 +47,8 @@ class ProductItem extends StatelessWidget {
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               onPressed: () {
                 product
-                    .toggleFavoriteStatus(authData.token as String)
+                    .toggleFavoriteStatus(
+                        authData.token as String, authData.userId as String)
                     .catchError((error) {
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(
