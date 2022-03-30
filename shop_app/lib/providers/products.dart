@@ -42,6 +42,14 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  final String authToken;
+
+  Products(this.authToken, itemList) {
+    if (itemList != null) {
+      _items.addAll(itemList);
+    }
+  }
+
   List<Product> get items {
     return [..._items];
   }
@@ -52,7 +60,8 @@ class Products with ChangeNotifier {
 
   Future<void> fetchAndSetProducts(BuildContext ctx) async {
     final url = Uri.parse(
-        'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json');
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
+    );
 
     try {
       final response = await http.get(url);

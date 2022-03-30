@@ -26,38 +26,52 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (BuildContext ctx) => Products(),
+          create: (BuildContext ctx) => Auth(),
         ),
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (BuildContext ctx) => Products('', null),
+          update: (BuildContext ctx, Auth auth, Products? previousProducts) =>
+              Products(auth.token as String,
+                  previousProducts == null ? [] : previousProducts.items),
+        ),
+        // ChangeNotifierProvider(
+        //   create: (BuildContext ctx) => Products(),
+        // ),
         ChangeNotifierProvider(
           create: (BuildContext ctx) => Cart(),
         ),
         ChangeNotifierProvider(
           create: (BuildContext ctx) => Orders(),
         ),
-        ChangeNotifierProvider(
-          create: (BuildContext ctx) => Auth(),
-        ),
       ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-            primarySwatch: Colors.purple,
-            colorScheme: const ColorScheme.light().copyWith(
-              secondary: Colors.deepOrange,
-            )),
-        home: const AuthScreen(),
-        // home: const ProductOverviewScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (BuildContext ctx) =>
-              const ProductDetailScreen(),
-          CartScreen.routeName: (BuildContext ctx) => const CartScreen(),
-          OrdersScreen.routeName: (BuildContext ctx) => const OrdersScreen(),
-          UserProductsScreen.routeName: (BuildContext ctx) =>
-              const UserProductsScreen(),
-          EditProductsScreen.routeName: (BuildContext ctx) =>
-              const EditProductsScreen(),
-        },
-      ),
+      child: Consumer<Auth>(
+          builder: (BuildContext ctx, Auth auth, Widget? children) =>
+              MaterialApp(
+                title: 'Flutter Demo',
+                theme: ThemeData(
+                    primarySwatch: Colors.purple,
+                    colorScheme: const ColorScheme.light().copyWith(
+                      secondary: Colors.deepOrange,
+                    )),
+                home: auth.isAuth
+                    ? const ProductOverviewScreen()
+                    : const AuthScreen(),
+                // home: const ProductOverviewScreen(),
+                routes: {
+                  // ProductOverviewScreen.routeName: (BuildContext ctx) =>
+                  // const ProductOverviewScreen(),
+                  ProductDetailScreen.routeName: (BuildContext ctx) =>
+                      const ProductDetailScreen(),
+                  CartScreen.routeName: (BuildContext ctx) =>
+                      const CartScreen(),
+                  OrdersScreen.routeName: (BuildContext ctx) =>
+                      const OrdersScreen(),
+                  UserProductsScreen.routeName: (BuildContext ctx) =>
+                      const UserProductsScreen(),
+                  EditProductsScreen.routeName: (BuildContext ctx) =>
+                      const EditProductsScreen(),
+                },
+              )),
     );
   }
 }
