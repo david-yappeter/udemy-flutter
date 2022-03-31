@@ -43,8 +43,9 @@ class Products with ChangeNotifier {
   ];
 
   final String authToken;
+  final String userId;
 
-  Products(this.authToken, itemList) {
+  Products(this.authToken, this.userId, itemList) {
     if (itemList != null) {
       _items.addAll(itemList);
     }
@@ -62,6 +63,9 @@ class Products with ChangeNotifier {
     final url = Uri.parse(
       'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
     );
+    final favoriteUrl = Uri.parse(
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken',
+    );
 
     try {
       final response = await http.get(url);
@@ -69,17 +73,29 @@ class Products with ChangeNotifier {
         throw const HttpException(message: 'Could not fetch products');
       } else {
         final responseBody = json.decode(response.body) as Map<String, dynamic>;
+
+        final favoriteResponse = await http.get(favoriteUrl);
+        final favoriteData = json.decode(favoriteResponse.body);
+
         final List<Product> loadedProducts = [];
-        responseBody.forEach((prodId, prodData) {
-          loadedProducts.add(Product(
-            id: prodId,
-            title: prodData['title'],
-            description: prodData['description'],
-            price: prodData['price'],
-            isFavorite: prodData['isFavorite'],
-            imageUrl: prodData['imageUrl'],
-          ));
-        });
+        responseBody.forEach(
+          (prodId, prodData) {
+            loadedProducts.add(
+              Product(
+                id: prodId,
+                title: prodData['title'],
+                description: prodData['description'],
+                price: prodData['price'],
+                isFavorite: favoriteData == null
+                    ? false
+                    : favoriteData[prodId] != null
+                        ? favoriteData[prodId]['isFavorite']
+                        : false,
+                imageUrl: prodData['imageUrl'],
+              ),
+            );
+          },
+        );
         _items = loadedProducts;
         notifyListeners();
       }
