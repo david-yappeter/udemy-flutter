@@ -59,9 +59,11 @@ class Products with ChangeNotifier {
     return _items.where((Product product) => product.isFavorite).toList();
   }
 
-  Future<void> fetchAndSetProducts(BuildContext ctx) async {
-    final url = Uri.parse(
-      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
+  Future<void> fetchAndSetProducts(BuildContext ctx,
+      {bool filterByUser = false}) async {
+    final url =  Uri.parse(
+      filterByUser ?
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"' : 'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
     );
     final favoriteUrl = Uri.parse(
       'https://solid-daylight-332812-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken',
@@ -127,6 +129,7 @@ class Products with ChangeNotifier {
         'imageUrl': product.imageUrl,
         'price': product.price,
         'isFavorite': product.isFavorite,
+        'creatorId': userId,
       }),
     )
         .then((response) {
@@ -166,13 +169,18 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-      'https://solid-daylight-332812-default-rtdb.firebaseio.com/$id.json?auth=$authToken',
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken',
+    );
+    final favoriteUri = Uri.parse(
+      'https://solid-daylight-332812-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$authToken',
     );
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
     notifyListeners();
-    final response = await http.delete(url).then((response) {
+    http.delete(favoriteUri).catchError((error) {});
+
+    http.delete(url).then((response) {
       if (response.statusCode >= 400) {
         throw const HttpException(message: 'Could not delete product.');
       } else {
