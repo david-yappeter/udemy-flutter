@@ -61,9 +61,10 @@ class Products with ChangeNotifier {
 
   Future<void> fetchAndSetProducts(BuildContext ctx,
       {bool filterByUser = false}) async {
-    final url =  Uri.parse(
-      filterByUser ?
-      'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"' : 'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
+    final url = Uri.parse(
+      filterByUser
+          ? 'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken&orderBy="creatorId"&equalTo="$userId"'
+          : 'https://solid-daylight-332812-default-rtdb.firebaseio.com/products.json?auth=$authToken',
     );
     final favoriteUrl = Uri.parse(
       'https://solid-daylight-332812-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authToken',

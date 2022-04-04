@@ -11,6 +11,7 @@ import 'package:shop_app/screens/product_overview.dart';
 import 'package:shop_app/providers/products.dart';
 import 'package:shop_app/providers/cart.dart';
 import 'package:shop_app/providers/orders.dart';
+import 'package:shop_app/screens/splash.dart';
 import 'package:shop_app/screens/user_product.dart';
 
 void main() {
@@ -32,8 +33,8 @@ class MyApp extends StatelessWidget {
           create: (BuildContext ctx) => Products('', '', null),
           update: (BuildContext ctx, Auth auth, Products? previousProducts) =>
               Products(
-            auth.token as String,
-            auth.userId as String,
+            auth.token ?? '',
+            auth.userId ?? '',
             previousProducts == null ? [] : previousProducts.items,
           ),
         ),
@@ -41,11 +42,12 @@ class MyApp extends StatelessWidget {
           create: (BuildContext ctx) => Cart(),
         ),
         ChangeNotifierProxyProvider<Auth, Orders>(
-          create: (BuildContext ctx) => Orders('', []),
+          create: (BuildContext ctx) => Orders('', [], ''),
           update: (BuildContext ctx, Auth auth, Orders? previousOrder) =>
               Orders(
-            auth.token as String,
+            auth.token ?? '',
             previousOrder == null ? [] : previousOrder.orders,
+            auth.userId ?? '',
           ),
         ),
       ],
@@ -60,7 +62,14 @@ class MyApp extends StatelessWidget {
                     )),
                 home: auth.isAuth
                     ? const ProductOverviewScreen()
-                    : const AuthScreen(),
+                    : FutureBuilder(
+                        future: auth.tryAutoLogin(),
+                        builder: (BuildContext ctx,
+                                AsyncSnapshot<bool> snapshot) =>
+                            snapshot.connectionState == ConnectionState.waiting
+                                ? const SplashScreen()
+                                : const AuthScreen(),
+                      ),
                 // home: const ProductOverviewScreen(),
                 routes: {
                   // ProductOverviewScreen.routeName: (BuildContext ctx) =>
