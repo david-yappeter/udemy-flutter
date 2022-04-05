@@ -77,7 +77,7 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> login(BuildContext ctx, String email, String password) async {
-    // autoLogout();
+    autoLogout();
     return _authenticate(email, password, 'signInWithPassword');
   }
 
@@ -99,7 +99,7 @@ class Auth with ChangeNotifier {
     _userId = extractedUserData['_userId'] as String;
     _expiryDate = expiryDate;
     notifyListeners();
-    // autoLogout();
+    autoLogout();
     return true;
   }
 
@@ -119,7 +119,8 @@ class Auth with ChangeNotifier {
     if (_authTimer != null) {
       _authTimer?.cancel();
     }
-    final timeToExpiry = _expiryDate?.difference(DateTime.now()).inSeconds;
-    _authTimer = Timer(Duration(seconds: 60), logout);
+    final int timeToExpiry =
+        _expiryDate?.difference(DateTime.now()).inSeconds as int;
+    _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
 }

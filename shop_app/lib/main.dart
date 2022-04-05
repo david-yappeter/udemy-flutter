@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/helper/custom_route.dart';
 import 'package:shop_app/providers/auth.dart';
 import 'package:shop_app/screens/auth.dart';
 import 'package:shop_app/screens/cart.dart';
@@ -56,24 +57,29 @@ class MyApp extends StatelessWidget {
               MaterialApp(
                 title: 'Flutter Demo',
                 theme: ThemeData(
-                    primarySwatch: Colors.purple,
-                    colorScheme: const ColorScheme.light().copyWith(
-                      secondary: Colors.deepOrange,
-                    )),
-                home: auth.isAuth
-                    ? const ProductOverviewScreen()
-                    : FutureBuilder(
-                        future: auth.tryAutoLogin(),
-                        builder: (BuildContext ctx,
-                                AsyncSnapshot<bool> snapshot) =>
-                            snapshot.connectionState == ConnectionState.waiting
-                                ? const SplashScreen()
-                                : const AuthScreen(),
-                      ),
-                // home: const ProductOverviewScreen(),
+                  pageTransitionsTheme: PageTransitionsTheme(builders: {
+                    TargetPlatform.android: CustomPageTransitionBuilder(),
+                    TargetPlatform.iOS: CustomPageTransitionBuilder(),
+                  }),
+                  primarySwatch: Colors.purple,
+                  colorScheme: const ColorScheme.light().copyWith(
+                    secondary: Colors.deepOrange,
+                  ),
+                ),
+                initialRoute: '/',
                 routes: {
-                  // ProductOverviewScreen.routeName: (BuildContext ctx) =>
-                  // const ProductOverviewScreen(),
+                  ProductOverviewScreen.routeName: (BuildContext ctx) =>
+                      auth.isAuth
+                          ? const ProductOverviewScreen()
+                          : FutureBuilder(
+                              future: auth.tryAutoLogin(),
+                              builder: (BuildContext ctx,
+                                      AsyncSnapshot<bool> snapshot) =>
+                                  snapshot.connectionState ==
+                                          ConnectionState.waiting
+                                      ? const SplashScreen()
+                                      : const AuthScreen(),
+                            ),
                   ProductDetailScreen.routeName: (BuildContext ctx) =>
                       const ProductDetailScreen(),
                   CartScreen.routeName: (BuildContext ctx) =>
