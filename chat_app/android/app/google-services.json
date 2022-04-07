@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "119533557094",
+    "firebase_url": "https://solid-daylight-332812-default-rtdb.firebaseio.com",
+    "project_id": "solid-daylight-332812",
+    "storage_bucket": "solid-daylight-332812.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:119533557094:android:e34e19f79f933301e4e4a7",
+        "android_client_info": {
+          "package_name": "com.example.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "119533557094-ke7hru6cvi1vqdpem4h96eo7u3msbbqp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbW66-DxbNmgadWHFsU_j-uv04a6RXQR0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "119533557094-ke7hru6cvi1vqdpem4h96eo7u3msbbqp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
