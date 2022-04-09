@@ -20,7 +20,13 @@ class _UserImagePickerState extends State<UserImagePicker> {
 
   void _pickImage() {
     final imagePicker = ImagePicker();
-    imagePicker.pickImage(source: ImageSource.camera).then((XFile? image) {
+    imagePicker
+        .pickImage(
+      source: ImageSource.camera,
+      imageQuality: 50,
+      maxWidth: 150,
+    )
+        .then((XFile? image) {
       setState(() {
         _pickedImage = image == null ? null : File(image.path);
       });

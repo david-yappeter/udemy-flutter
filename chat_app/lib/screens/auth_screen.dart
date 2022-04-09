@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_app/http/exception.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/widgets/auth_form.dart';
@@ -34,16 +35,30 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() {
         _isLoading = true;
       });
+
       if (_isLogin) {
         authResult = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       } else {
+        if (image == null) {
+          throw InputInvalidException(message: 'Please select an image');
+        }
+
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
+
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('user_image')
+            .child('${authResult.user!.uid}.jpg');
+
+        await ref.putFile(image);
+
+        final url = await ref.getDownloadURL();
 
         await FirebaseFirestore.instance
             .collection('users')
@@ -51,8 +66,21 @@ class _AuthScreenState extends State<AuthScreen> {
             .set({
           'email': email,
           'username': username,
+          'image_url': url,
         });
       }
+    } on InputInvalidException catch (err) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(err.toString()),
+          backgroundColor: Theme.of(context).errorColor,
+          action: SnackBarAction(
+            label: 'Okay',
+            onPressed: () {},
+          ),
+        ),
+      );
     } on PlatformException catch (err) {
       var message = 'An Error occured, please check your credentials';
 
@@ -86,9 +114,11 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       );
     }
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
