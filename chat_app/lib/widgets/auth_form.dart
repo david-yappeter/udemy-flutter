@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:chat_app/widgets/user_image_picker.dart';
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
@@ -6,6 +9,7 @@ class AuthForm extends StatefulWidget {
     String email,
     String password,
     String? username,
+    File? image,
     bool _isLogin,
   ) submitFn;
   final bool isLoading;
@@ -31,6 +35,7 @@ class _AuthFormState extends State<AuthForm>
   };
   late AnimationController _animationController;
   late Animation<double> _opacityController;
+  File? _userImageFile;
 
   @override
   void initState() {
@@ -61,16 +66,37 @@ class _AuthFormState extends State<AuthForm>
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
+    if (!_isLogin && _userImageFile == null) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Please pick an image'),
+        backgroundColor: Theme.of(context).errorColor,
+        action: SnackBarAction(
+          label: 'Ok',
+          textColor: Colors.white,
+          onPressed: () {},
+        ),
+      ));
+      return;
+    }
+
     if (isValid) {
       _formKey.currentState!.save();
       widget.submitFn(
         context,
-        _data['email']!,
+        _data['email']!.trim(),
         _data['password']!,
-        _data['username'],
+        _data['username']?.trim(),
+        _userImageFile,
         _isLogin,
       );
     }
+  }
+
+  void _pickedImage(File? image) {
+    setState(() {
+      _userImageFile = image;
+    });
   }
 
   @override
@@ -86,6 +112,7 @@ class _AuthFormState extends State<AuthForm>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
+                  if (!_isLogin) UserImagePicker(imagePickerFn: _pickedImage),
                   TextFormField(
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
